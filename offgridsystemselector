@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Off Grid Water System Selector</title>
+  <style>
+    /* CSS styles from the previous code */
+  </style>
+</head>
+<body>
+  <h1>Off Grid Water System Selector</h1>
+  <form>
+    <!-- Form elements from the previous code -->
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    function selectSystem() {
+      const waterSource = document.getElementById("waterSource").value;
+      const waterQuality = document.getElementById("waterQuality").value;
+      const purpose = document.getElementById("purpose").value;
+      const sedimentLevel = document.getElementById("sedimentLevel").value;
+      const contaminants = Array.from(document.querySelectorAll('input[name="contaminants"]:checked')).map(input => input.value);
+
+      const systemData = [
+        { setup: "Offgrid Rain", numberOfSystems: 1, system1: "Offgrid Rain", system2: "n/a", system3: "n/a", waterQuality: ["Good", "Medium"], sourceWater: ["Rain", "River", "Lake", "Borehole"], drinking: "Yes", washing: "Yes", integratedPump: "Yes", waterQualityOutputConfidence: "Medium", sedimentRemovalCapacity: "Low", nitratesRemovalCapacity: "Medium", bacteriaVirusesCystsRemovalCapacity: "High", heavyMetalRemovalCapacity: "Medium" },
+        { setup: "Offgrid Rain + FinalStage RO", numberOfSystems: 2, system1: "Offgrid Rain", system2: "Final Stage RO", system3: "n/a", waterQuality: ["Good", "Medium", "Bad"], sourceWater: ["Rain", "River", "Lake", "Borehole"], drinking: "Yes", washing: "Yes", integratedPump: "Yes", waterQualityOutputConfidence: "High", sedimentRemovalCapacity: "Low", nitratesRemovalCapacity: "High", bacteriaVirusesCystsRemovalCapacity: "Very High", heavyMetalRemovalCapacity: "High" },
+        { setup: "StageOne (Canal config)", numberOfSystems: 1, system1: "StageOne", system2: "n/a", system3: "n/a", waterQuality: ["Bad", "Very Bad"], sourceWater: ["Canal", "River", "Lake", "Borehole"], drinking: "No", washing: "Yes", integratedPump: "Yes", waterQualityOutputConfidence: "High", sedimentRemovalCapacity: "High", nitratesRemovalCapacity: "Low", bacteriaVirusesCystsRemovalCapacity: "High", heavyMetalRemovalCapacity: "Medium" },
+        { setup: "StageOne (Expedition config)", numberOfSystems: 1, system1: "StageOne", system2: "n/a", system3: "n/a", waterQuality: ["Good", "Medium"], sourceWater: ["Lake", "River", "Rain"], drinking: "Yes", washing: "Yes", integratedPump: "Yes", waterQualityOutputConfidence: "High", sedimentRemovalCapacity: "Low", nitratesRemovalCapacity: "Medium", bacteriaVirusesCystsRemovalCapacity: "Very High", heavyMetalRemovalCapacity: "Medium" },
+        { setup: "StageOne (Canal config) + StageTwo", numberOfSystems: 2, system1: "StageOne", system2: "StageTwo", system3: "n/a", waterQuality: ["Bad", "Very Bad"], sourceWater: ["Canal", "River", "Lake", "Borehole"], drinking: "Yes", washing: "Yes", integratedPump: "Yes", waterQualityOutputConfidence: "Medium", sedimentRemovalCapacity: "High", nitratesRemovalCapacity: "Medium", bacteriaVirusesCystsRemovalCapacity: "Very High", heavyMetalRemovalCapacity: "High" },
+        { setup: "StageOne (Canal config) +StageTwo + FinalStageRO", numberOfSystems: 3, system1: "StageOne", system2: "StageTwo", system3: "FinalStageRO", waterQuality: ["Very Bad"], sourceWater: ["Canal", "River", "Lake", "Borehole"], drinking: "Yes", washing: "Yes", integratedPump: "Yes", waterQualityOutputConfidence: "High", sedimentRemovalCapacity: "High", nitratesRemovalCapacity: "High", bacteriaVirusesCystsRemovalCapacity: "Very High", heavyMetalRemovalCapacity: "Very High" },
+        { setup: "StageOne (Expedition config) + FinalStageRO", numberOfSystems: 2, system1: "StageOne", system2: "FinalStageRO", system3: "n/a", waterQuality: ["Good", "Medium"], sourceWater: ["Lake", "River", "Rain"], drinking: "Yes", washing: "Yes", integratedPump: "Yes", waterQualityOutputConfidence: "High", sedimentRemovalCapacity: "Low", nitratesRemovalCapacity: "High", bacteriaVirusesCystsRemovalCapacity: "Very High", heavyMetalRemovalCapacity: "High" },
+        { setup: "FinalStage RO + StageTwo", numberOfSystems: 2, system1: "FinalStageRO", system2: "StageTwo", system3: "n/a", waterQuality: ["Good"], sourceWater: ["Municipal", "Pre-filtered", "Water tank", "Rain"], drinking: "Yes", washing: "Yes", integratedPump: "No", waterQualityOutputConfidence: "High", sedimentRemovalCapacity: "Medium", nitratesRemovalCapacity: "High", bacteriaVirusesCystsRemovalCapacity: "Very High", heavyMetalRemovalCapacity: "Very High" },
+        { setup: "FinalStage RO", numberOfSystems: 1, system1: "FinalStageRO", system2: "n/a", system3: "n/a", waterQuality: ["Good"], sourceWater: ["Municipal", "Pre-filtered", "Water tank", "Rain"], drinking: "Yes", washing: "No", integratedPump: "No", waterQualityOutputConfidence: "High", sedimentRemovalCapacity: "Low", nitratesRemovalCapacity: "Medium", bacteriaVirusesCystsRemovalCapacity: "Very High", heavyMetalRemovalCapacity: "High" },
+        { setup: "StageTwo", numberOfSystems: 1, system1: "StageTwo", system2: "n/a", system3: "n/a", waterQuality: ["Good"], sourceWater: ["Municipal", "Pre-filtered", "Water tank", "Rain"], drinking: "Yes", washing: "Yes", integratedPump: "No", waterQualityOutputConfidence: "Medium", sedimentRemovalCapacity: "Low", nitratesRemovalCapacity: "Medium", bacteriaVirusesCystsRemovalCapacity: "High", heavyMetalRemovalCapacity: "Medium" }
+      ];
+
+      const selectedSystems = systemData.filter(system =>
+        system.sourceWater.includes(waterSource) &&
+        ((waterQuality === "Good" && system.waterQuality.includes("Good")) ||
+        (waterQuality === "Medium" && (system.waterQuality.includes("Medium") || system.waterQuality.includes("Bad") || system.waterQuality.includes("Very Bad"))) ||
+        (waterQuality === "Bad" && (system.waterQuality.includes("Bad") || system.waterQuality.includes("Very Bad"))) ||
+        (waterQuality === "Very Bad" && system.waterQuality.includes("Very Bad"))) &&
+        (purpose === "Both" || (purpose === "Drinking" && system.drinking === "Yes") || (purpose === "Washing" && system.washing === "Yes")) &&
+        (sedimentLevel === "" || (sedimentLevel === "Low" && system.sedimentRemovalCapacity === "Low") || (sedimentLevel === "Medium" && (system.sedimentRemovalCapacity === "Medium" || system.sedimentRemovalCapacity === "High")) || (sedimentLevel === "High" && system.sedimentRemovalCapacity === "High")) &&
+        contaminants.every(contaminant =>
+          (contaminant === "nitrates" && (system.nitratesRemovalCapacity === "High" || system.nitratesRemovalCapacity === "Very High")) ||
+          (contaminant === "microorganisms" && (system.bacteriaVirusesCystsRemovalCapacity === "High" || system.bacteriaVirusesCystsRemovalCapacity === "Very High")) ||
+          (contaminant === "heavyMetals" && (system.heavyMetalRemovalCapacity === "High" || system.heavyMetalRemovalCapacity === "Very High"))
+        )
+      );
+
+      const resultDiv = document.getElementById("result");
+      if (selectedSystems.length > 0) {
+        resultDiv.innerHTML = `
+          <h2>Recommended Systems:</h2>
+          <ul>
+            ${selectedSystems.map(system => `
+              <li>
+                <strong>Setup: ${system.setup}</strong>
+                <br>
+                Number of Systems: ${system.numberOfSystems}
+                <br>
+                System 1: ${system.system1}
+                <br>
+                System 2: ${system.system2}
+                <br>
+                System 3: ${system.system3}
+                <br>
+                Integrated Pump: ${system.integratedPump}
+                <br>
+                Water Quality Output Confidence: ${system.waterQualityOutputConfidence}
+                <br>
+                Sediment Removal Capacity: ${system.sedimentRemovalCapacity}
+                <br>
+                Nitrates Removal Capacity: ${system.nitratesRemovalCapacity}
+                <br>
+                Bacteria/Viruses/Cysts Removal Capacity: ${system.bacteriaVirusesCystsRemovalCapacity}
+                <br>
+                Heavy Metal Removal Capacity: ${system.heavyMetalRemovalCapacity}
+                <br>
+                <a href="https://www.offgridwater.net/products/${system.system1.toLowerCase().replace(/ /g, '-')}" class="product-link" target="_blank">Learn More about ${system.system1}</a>
+                ${system.system2 !== "n/a" ? `<a href="https://www.offgridwater.net/products/${system.system2.toLowerCase().replace(/ /g, '-')}" class="product-link" target="_blank">Learn More about ${system.system2}</a>` : ""}
+                ${system.system3 !== "n/a" ? `<a href="https://www.offgridwater.net/products/${system.system3.toLowerCase().replace(/ /g, '-')}" class="product-link" target="_blank">Learn More about ${system.system3}</a>` : ""}
+              </li>
+            `).join("")}
+          </ul>
+          <p>The recommended systems are capable of handling your water source, water quality, and purpose, as well as removing the specified contaminants.</p>
+          <p>Please visit <a href="https://www.offgridwater.net/products" target="_blank">www.offgridwater.net/products</a> for more information or to place an order.</p>
+        `;
+      } else {
+        resultDiv.innerHTML = `
+          <h2>No System Found</h2>
+          <p>We couldn't find a system that matches your input. The selected setup is not possible with our current offerings. Please contact us for a custom solution.</p>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
